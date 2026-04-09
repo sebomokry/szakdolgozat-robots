@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="hun">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ricochet Robots</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Ricochet Robots</h1>
+        <div id="game-board"></div>
+        <div class="controls">
+            <p>Válassz robotot és irányt a lépéshez!</p>
+            <div id="robot-selector">
+                <label class="robot-label color-0"><input type="radio" name="robot" value="0" checked> Zöld</label>
+                <label class="robot-label color-1"><input type="radio" name="robot" value="1"> Piros</label>
+                <label class="robot-label color-2"><input type="radio" name="robot" value="2"> Sárga</label>
+                <label class="robot-label color-3"><input type="radio" name="robot" value="3"> Kék</label>
+                <label class="robot-label color-4"><input type="radio" name="robot" value="4"> Fekete</label>
+            </div>
+            <div class="directions">
+                <!-- 0: Észak, 1: Dél, 2: Kelet, 3: Nyugat -->
+                <button onclick="move(0)">Észak (W)</button><br>
+                <button onclick="move(3)">Nyugat (A)</button>
+                <button onclick="move(1)">Dél (S)</button>
+                <button onclick="move(2)">Kelet (D)</button>
+            </div>
+            <p class="hint">Használhatod a W A S D vagy nyilak billentyűket is.</p>
+            <div class="solver-controls"
+                style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ccc; width: 100%; text-align: center;">
+                <h3>Megoldó Algoritmus</h3>
+                <p class="hint">Kattints egy mezőre a cél kijelöléséhez!</p>
+                <div style="margin: 10px 0;">
+                    Cél: <span id="target-coords" style="font-weight: bold; color: #d97706;">Nincs kiválasztva</span>
+                </div>
+                <div style="margin: 10px 0;">
+                    Algoritmus:
+                    <select id="algorithm-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
+                        <option value="astar">A* (Heurisztikus)</option>
+                        <option value="bfs">BFS (Szélességi keresés)</option>
+                    </select>
+                </div>
+                <button onclick="solve()" style="background-color: #f59e0b;">Útvonal keresése</button>
+                <div id="solve-result" style="margin-top: 10px; font-weight: bold; color: #333; min-height: 20px;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+
+</html>
