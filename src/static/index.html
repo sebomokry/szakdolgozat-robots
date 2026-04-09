@@ -11,10 +11,10 @@
 
 <body>
     <div class="container">
-        <h1>Ricochet Robots</h1>
-        <div id="game-board"></div>
-        <div class="controls">
-            <p>Válassz robotot és irányt a lépéshez!</p>
+        <!-- Bal panel: Vezérlés -->
+        <div class="left-panel controls" style="margin-top: 0;">
+            <h3>Mozgás vezérlés</h3>
+            <p style="text-align: center;">Válassz robotot és irányt a lépéshez!</p>
             <div id="robot-selector">
                 <label class="robot-label color-0"><input type="radio" name="robot" value="0" checked> Zöld</label>
                 <label class="robot-label color-1"><input type="radio" name="robot" value="1"> Piros</label>
@@ -22,31 +22,41 @@
                 <label class="robot-label color-3"><input type="radio" name="robot" value="3"> Kék</label>
                 <label class="robot-label color-4"><input type="radio" name="robot" value="4"> Fekete</label>
             </div>
-            <div class="directions">
+            <div class="directions"
+                style="display: grid; grid-template-columns: 50px 50px 50px; grid-template-rows: 40px 40px; gap: 5px; justify-content: center; margin: 15px 0;">
                 <!-- 0: Észak, 1: Dél, 2: Kelet, 3: Nyugat -->
-                <button onclick="move(0)">Észak (W)</button><br>
-                <button onclick="move(3)">Nyugat (A)</button>
-                <button onclick="move(1)">Dél (S)</button>
-                <button onclick="move(2)">Kelet (D)</button>
+                <button onclick="move(0)" style="grid-column: 2; grid-row: 1; padding: 0;">W</button>
+                <button onclick="move(3)" style="grid-column: 1; grid-row: 2; padding: 0;">A</button>
+                <button onclick="move(1)" style="grid-column: 2; grid-row: 2; padding: 0;">S</button>
+                <button onclick="move(2)" style="grid-column: 3; grid-row: 2; padding: 0;">D</button>
             </div>
-            <p class="hint">Használhatod a W A S D vagy nyilak billentyűket is.</p>
-            <div class="solver-controls"
-                style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ccc; width: 100%; text-align: center;">
-                <h3>Megoldó Algoritmus</h3>
-                <p class="hint">Kattints egy mezőre a cél kijelöléséhez!</p>
-                <div style="margin: 10px 0;">
-                    Cél: <span id="target-coords" style="font-weight: bold; color: #d97706;">Nincs kiválasztva</span>
-                </div>
-                <div style="margin: 10px 0;">
-                    Algoritmus:
-                    <select id="algorithm-select" style="padding: 5px; border-radius: 4px; border: 1px solid #ccc;">
-                        <option value="astar">A* (Heurisztikus)</option>
-                        <option value="bfs">BFS (Szélességi keresés)</option>
-                    </select>
-                </div>
-                <button onclick="solve()" style="background-color: #f59e0b;">Útvonal keresése</button>
-                <div id="solve-result" style="margin-top: 10px; font-weight: bold; color: #333; min-height: 20px;">
-                </div>
+            <p class="hint" style="text-align: center;">Használhatod a W A S D vagy nyilak billentyűket is.</p>
+        </div>
+
+        <!-- Középső panel: Tábla -->
+        <div class="center-panel">
+            <div id="game-board" style="margin-bottom: 0;"></div>
+        </div>
+
+        <!-- Jobb panel: Algoritmus -->
+        <div class="right-panel solver-controls">
+            <h3>Megoldó Algoritmus</h3>
+            <p class="hint" style="text-align: center;">Kattints egy mezőre a cél kijelöléséhez!</p>
+            <div style="margin: 10px 0; text-align: center;">
+                Cél: <span id="target-coords" style="font-weight: bold; color: #d97706;">Nincs kiválasztva</span>
+            </div>
+            <div style="margin: 10px 0; width: 100%;">
+                <div style="margin-bottom: 5px;">Algoritmus:</div>
+                <select id="algorithm-select"
+                    style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; width: 100%;">
+                    <option value="astar">A* (Heurisztikus)</option>
+                    <option value="bfs">BFS (Szélességi keresés)</option>
+                </select>
+            </div>
+            <button onclick="solve()" style="background-color: #f59e0b; width: 100%; margin-top: 10px;">Útvonal
+                keresése</button>
+            <div id="solve-result"
+                style="margin-top: 15px; font-weight: bold; color: #333; min-height: 20px; width: 100%; text-align: center;">
             </div>
         </div>
     </div>

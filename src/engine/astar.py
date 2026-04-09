@@ -63,10 +63,11 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
         return None
         
     pq = []
-    counter = 0  # Sorrend megtartásához, ha f_score megegyezik
+    counter = 0  # Sorrend megtartásához
     
-    # A sor felépítése: (f_score, g_score, counter, positions, path)
-    heapq.heappush(pq, (start_h, 0, counter, start_positions, []))
+    # A sor felépítése: (f_score, main_robot_penalty, g_score, counter, positions, path)
+    # main_robot_penalty 0, ha a fő robot lépett legutóbb, különben 1. (Előnyben részesítjük)
+    heapq.heappush(pq, (start_h, 0, 0, counter, start_positions, []))
     
     # Visited dict tárolja, hogy egy állapotot mennyi a legkisebb g_score-ral értünk el
     visited = {}
@@ -75,7 +76,7 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
     directions = [NORTH, SOUTH, EAST, WEST]
     
     while pq:
-        f_score, g_score, _, current_positions, path = heapq.heappop(pq)
+        f_score, main_robot_penalty, g_score, _, current_positions, path = heapq.heappop(pq)
         
         # Ha célhoz ért a kiválasztott robot
         if current_positions[robot_idx] == target_pos:
@@ -115,8 +116,11 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
                     new_path = list(path)
                     new_path.append({"robot": r_idx, "dir": direction})
                     
+                    # 0 a büntetés, ha a mi fő robotunk lépett, különben 1
+                    main_robot_penalty = 0 if r_idx == robot_idx else 1
+                    
                     counter += 1
-                    heapq.heappush(pq, (new_f, new_g, counter, new_positions, new_path))
+                    heapq.heappush(pq, (new_f, main_robot_penalty, new_g, counter, new_positions, new_path))
     
     
     return None
