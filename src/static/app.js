@@ -188,13 +188,14 @@ async function solve() {
                 document.getElementById('solve-result').innerText = 'A célba értünk! Nincs szükség további lépésre.';
             } else {
                 const colors = { 0: "Zöld", 1: "Piros", 2: "Sárga", 3: "Kék", 4: "Fekete" };
+                const hexColors = { 0: "#0a8754", 1: "#f64740", 2: "#ffb703", 3: "#8ecae6", 4: "#000000" };
                 const dirs = { 0: "Észak", 1: "Dél", 2: "Kelet", 3: "Nyugat" };
 
                 let resultHtml = `<div style="color: #059669;">Megoldás megtalálva! Lépésszám: ${data.path.length}</div>`;
                 resultHtml += '<div style="margin-top: 10px; padding: 10px; background: white; border: 1px dashed #ccc; border-radius: 4px; max-height: 180px; overflow-y: auto; text-align: left; font-size: 14px; font-weight: normal; color: #333;">';
 
                 data.path.forEach((step, idx) => {
-                    const colorHtml = `<strong style="color: ${step.robot === 0 ? '#0a8754' : step.robot === 1 ? '#f64740' : step.robot === 2 ? '#ffb703' : step.robot === 3 ? '#000000' : '#8ecae6'}">${colors[step.robot]}</strong>`;
+                    const colorHtml = `<strong style="color: ${hexColors[step.robot]}">${colors[step.robot]}</strong>`;
                     resultHtml += `<div>${idx + 1}. lépés: ${colorHtml} robot ➔ <strong>${dirs[step.dir]}</strong></div>`;
                 });
 

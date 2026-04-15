@@ -9,7 +9,6 @@ def calculate_heuristic(board, target_pos):
     Kiszámolja a célmezőből kiindulva visszafele haladva, hogy 
     ha minden fal és minden segédrobot ideális helyen lenne, 
     minimálisan hány lépésbe telne eljutni az adott mezőről a célba.
-    Ez kiváló és elfogadható (admissible) heurisztika az A* algoritmushoz.
     """
     size = board.size
     inf = float('inf')
@@ -20,25 +19,28 @@ def calculate_heuristic(board, target_pos):
     
     queue = deque([(tx, ty)])
     
+    OPPOSITE = {NORTH: SOUTH, SOUTH: NORTH, EAST: WEST, WEST: EAST}
+    
     while queue:
         cx, cy = queue.popleft()
         current_cost = H[cy][cx]
         
-        # Minden irányban haladunk visszafelé, amíg falba nem ütközünk
         for direction, (dx, dy) in DIRECTION_DELTAS.items():
+            has_wall = board.walls[cy][cx][direction]
+            new_cost = current_cost + 1
+            
             x, y = cx, cy
+            opp_dir = OPPOSITE[direction]
+            
             while True:
-                # Van-e fal ebbe az irányba?
-                if board.walls[y][x][direction]:
+                if board.walls[y][x][opp_dir]:
                     break
                 
-                x += dx
-                y += dy
+                x -= dx
+                y -= dy
                 
-                # Ha ezen a vonalon olyan mezőre értünk, ahol a 
-                # heurisztika érték még nem a legkisebb
-                if H[y][x] > current_cost + 1:
-                    H[y][x] = current_cost + 1
+                if H[y][x] > new_cost:
+                    H[y][x] = new_cost
                     queue.append((x, y))
                     
     return H
@@ -49,12 +51,10 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
     """
     print(f"[{robot_idx}. robot] A* Útvonalkeresés a {target_pos} kordinátára... (max mélység: {max_depth})")
     
-    # 1. Heurisztika tábla kiszámítása a célhoz
     H = calculate_heuristic(board, target_pos)
     
     start_positions = tuple(current_state.robots)
     
-    # A kiinduló pozíció heurisztikája
     start_tx, start_ty = start_positions[robot_idx]
     start_h = H[start_ty][start_tx]
     
@@ -63,13 +63,10 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
         return None
         
     pq = []
-    counter = 0  # Sorrend megtartásához
+    counter = 0  
     
-    # A sor felépítése: (f_score, main_robot_penalty, g_score, counter, positions, path)
-    # main_robot_penalty 0, ha a fő robot lépett legutóbb, különben 1. (Előnyben részesítjük)
     heapq.heappush(pq, (start_h, 0, 0, counter, start_positions, []))
     
-    # Visited dict tárolja, hogy egy állapotot mennyi a legkisebb g_score-ral értünk el
     visited = {}
     visited[start_positions] = 0
     
@@ -78,22 +75,18 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
     while pq:
         f_score, main_robot_penalty, g_score, _, current_positions, path = heapq.heappop(pq)
         
-        # Ha célhoz ért a kiválasztott robot
         if current_positions[robot_idx] == target_pos:
-            print(f"{counter} db állapotot vizsgáltunk meg.")
+            print(f"{counter} db állapotot vizsgáltunk meg (sima A*).")
             return path
             
-        # Túlléptük a g_score határt
         if g_score >= max_depth:
             continue
             
-        # Összes robot vizsgálata minden irányba
         for r_idx in range(len(current_positions)):
             for direction in directions:
                 temp_state = GameState(list(current_positions))
                 new_pos = compute_move(board, temp_state, r_idx, direction)
                 
-                # Ha nem tud mozdulni
                 if new_pos == current_positions[r_idx]:
                     continue
                     
@@ -103,11 +96,9 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
                 
                 new_g = g_score + 1
                 
-                # Ha új állapot
-                if new_positions not in visited:
+                if new_positions not in visited or new_g < visited[new_positions]:
                     visited[new_positions] = new_g
                     
-                    # Heurisztika csak a kiválasztott fő robot távolságától függ!
                     rx, ry = new_positions[robot_idx]
                     h_score = H[ry][rx]
                     
@@ -116,11 +107,9 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
                     new_path = list(path)
                     new_path.append({"robot": r_idx, "dir": direction})
                     
-                    # 0 a büntetés, ha a mi fő robotunk lépett, különben 1
                     main_robot_penalty = 0 if r_idx == robot_idx else 1
                     
                     counter += 1
                     heapq.heappush(pq, (new_f, main_robot_penalty, new_g, counter, new_positions, new_path))
-    
-    
+                    
     return None

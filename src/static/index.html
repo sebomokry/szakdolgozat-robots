@@ -5,13 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ricochet Robots</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 
 <body>
+    <h1 style="text-align: center; margin-top: 20px; color: #333;">Ricochet Robots</h1>
     <div class="container">
-        <!-- Bal panel: Vezérlés -->
         <div class="left-panel controls" style="margin-top: 0;">
             <h3>Mozgás vezérlés</h3>
             <p style="text-align: center;">Válassz robotot és irányt a lépéshez!</p>
@@ -24,7 +24,6 @@
             </div>
             <div class="directions"
                 style="display: grid; grid-template-columns: 50px 50px 50px; grid-template-rows: 40px 40px; gap: 5px; justify-content: center; margin: 15px 0;">
-                <!-- 0: Észak, 1: Dél, 2: Kelet, 3: Nyugat -->
                 <button onclick="move(0)" style="grid-column: 2; grid-row: 1; padding: 0;">W</button>
                 <button onclick="move(3)" style="grid-column: 1; grid-row: 2; padding: 0;">A</button>
                 <button onclick="move(1)" style="grid-column: 2; grid-row: 2; padding: 0;">S</button>
@@ -33,12 +32,10 @@
             <p class="hint" style="text-align: center;">Használhatod a W A S D vagy nyilak billentyűket is.</p>
         </div>
 
-        <!-- Középső panel: Tábla -->
         <div class="center-panel">
             <div id="game-board" style="margin-bottom: 0;"></div>
         </div>
 
-        <!-- Jobb panel: Algoritmus -->
         <div class="right-panel solver-controls">
             <h3>Megoldó Algoritmus</h3>
             <p class="hint" style="text-align: center;">Kattints egy mezőre a cél kijelöléséhez!</p>
@@ -49,7 +46,8 @@
                 <div style="margin-bottom: 5px;">Algoritmus:</div>
                 <select id="algorithm-select"
                     style="padding: 5px; border-radius: 4px; border: 1px solid #ccc; width: 100%;">
-                    <option value="astar">A* (Heurisztikus)</option>
+                    <option value="astar_subgoal">A* (Heurisztikus + Alcélok)</option>
+                    <option value="astar">A* (Sima Heurisztikus)</option>
                     <option value="bfs">BFS (Szélességi keresés)</option>
                 </select>
             </div>

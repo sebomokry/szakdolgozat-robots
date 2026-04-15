@@ -17,7 +17,7 @@ h1 {
     display: flex;
     flex-direction: row;
     justify-content: center;
-    align-items: flex-start;
+    align-items: stretch;
     gap: 30px;
     width: 100%;
     max-width: 1200px;
@@ -47,7 +47,6 @@ h1 {
 
 #game-board {
     display: grid;
-    /* grid-template-columns/rows are set via JS */
     gap: 1px;
     background-color: #ccc;
     border: 2px solid #333;
@@ -70,7 +69,6 @@ h1 {
     cursor: not-allowed;
 }
 
-/* We use borders for walls since a single cell can have multiple walls, which would conflict with pseudo-elements */
 .wall-top {
     border-top: 4px solid #3a2928 !important;
 }
@@ -87,7 +85,7 @@ h1 {
     border-left: 4px solid #3a2928 !important;
 }
 
-/* Robots */
+
 .robot {
     position: absolute;
     width: 60%;
@@ -99,25 +97,23 @@ h1 {
     z-index: 10;
 }
 
-/* User's specified colors for players applied to our robots */
 .robot-0 {
     background-color: #0a8754;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* player1 */
 .robot-1 {
     background-color: #f64740;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* player2 */
+
 .robot-2 {
     background-color: #ffb703;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* player3 */
+
 .robot-3 {
     background-color: #8ecae6;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
@@ -128,9 +124,7 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-/* player4 */
 
-/* Controls styling */
 .controls {
     display: flex;
     flex-direction: column;

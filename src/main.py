@@ -8,6 +8,7 @@ from src.engine.state import GameState
 from src.engine.logic import compute_move
 from src.engine.solver import find_solution
 from src.engine.astar import find_solution_astar
+from src.engine.astar_subgoal import find_solution_astar_subgoal
 
 app = FastAPI()
 
@@ -51,8 +52,10 @@ def solve_board(req: SolveRequest):
     
     if req.algorithm == "bfs":
         path = find_solution(board, game_state, req.robot_idx, target_pos, max_depth=10)
-    else:
+    elif req.algorithm == "astar":
         path = find_solution_astar(board, game_state, req.robot_idx, target_pos, max_depth=20)
+    else:  # astar_subgoal
+        path = find_solution_astar_subgoal(board, game_state, req.robot_idx, target_pos, max_depth=20)
         
     return {"path": path}
 
