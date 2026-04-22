@@ -5,14 +5,6 @@ from src.engine.state import GameState
 from src.engine.constants import NORTH, SOUTH, EAST, WEST, DIRECTION_DELTAS
 
 def calculate_heuristic_subgoal(board, target_pos):
-    """
-    Kiszámolja a célmezőből kiindulva visszafele haladva, hogy 
-    ha minden fal és minden segédrobot ideális helyen lenne, 
-    minimálisan hány lépésbe telne eljutni az adott mezőről a célba.
-    Továbbá ('Sub-goal' logika): Minden mezőhöz eltárolja, hogy ehhez a 
-    minimális útra MELYIK koordinátákon volt feltétlenül szükség 
-    egy "képzeletbeli" segédrobotra (pattanási pontra).
-    """
     size = board.size
     inf = float('inf')
     H = [[inf for _ in range(size)] for _ in range(size)]
@@ -69,9 +61,6 @@ def calculate_heuristic_subgoal(board, target_pos):
     return H, Helpers
 
 def find_solution_astar_subgoal(board, current_state, robot_idx, target_pos, max_depth=20):
-    """
-    A* algoritmus a Ricochet Robots megoldásához, intelligens Alcél(Sub-goal) heurisztikával.
-    """
     print(f"[{robot_idx}. robot] A* (Subgoal) Útvonalkeresés a {target_pos} kordinátára... (max mélység: {max_depth})")
     
     H, Helpers = calculate_heuristic_subgoal(board, target_pos)

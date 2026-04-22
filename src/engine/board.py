@@ -22,8 +22,6 @@ DEFAULT_LAYOUT = [
 class Board:
     def __init__(self, size=16, layout=None):
         self.size = size
-        # Minden mezőhöz eltároljuk a falakat: [Észak, Dél, Kelet, Nyugat]
-        # Alapértelmezésben a széleken vannak falak.
         self.walls = []
         for _ in range(size):
             row = []

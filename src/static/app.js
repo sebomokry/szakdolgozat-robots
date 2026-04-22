@@ -21,13 +21,14 @@ async function initGame() {
 
 function renderBoard() {
     const boardElement = document.getElementById('game-board');
+    const svgLayer = document.getElementById('arrow-layer');
     boardElement.innerHTML = '';
+    if (svgLayer) boardElement.appendChild(svgLayer);
 
     const size = boardState.size;
     boardElement.style.gridTemplateColumns = `repeat(${size}, 32px)`;
     boardElement.style.gridTemplateRows = `repeat(${size}, 32px)`;
 
-    // Render cells and walls
     for (let y = 0; y < size; y++) {
         for (let x = 0; x < size; x++) {
             const cell = document.createElement('div');
@@ -35,14 +36,19 @@ function renderBoard() {
             cell.id = `cell-${x}-${y}`;
             cell.addEventListener('click', () => selectTarget(x, y));
 
+            cell.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+            });
+            cell.addEventListener('drop', (e) => handleRobotDrop(e, x, y));
+
             const walls = boardState.walls[y][x];
-            // [Észak, Dél, Kelet, Nyugati] - in the Python logic: NORTH=0, SOUTH=1, EAST=2, WEST=3
+            // NORTH=0, SOUTH=1, EAST=2, WEST=3
             if (walls[CONSTANTS.NORTH]) cell.classList.add('wall-top');
             if (walls[CONSTANTS.SOUTH]) cell.classList.add('wall-bottom');
             if (walls[CONSTANTS.EAST]) cell.classList.add('wall-right');
             if (walls[CONSTANTS.WEST]) cell.classList.add('wall-left');
 
-            // Középső négyzet szinezése (Ricochet board közép 2x2 / 8,8 környéke)
             if ((x === size / 2 || x === size / 2 - 1) && (y === size / 2 || y === size / 2 - 1)) {
                 cell.classList.add('center-block');
             }
@@ -51,12 +57,16 @@ function renderBoard() {
         }
     }
 
-    // Render robots
     boardState.robots.forEach((pos, idx) => {
         const [x, y] = pos;
         const robotElement = document.createElement('div');
         robotElement.classList.add('robot', `robot-${idx}`);
         robotElement.id = `robot-${idx}`;
+        robotElement.setAttribute('draggable', 'true');
+        robotElement.addEventListener('dragstart', (e) => {
+            e.dataTransfer.setData('text/plain', idx);
+            e.dataTransfer.effectAllowed = 'move';
+        });
 
         const cell = document.getElementById(`cell-${x}-${y}`);
         if (cell) {
@@ -68,7 +78,6 @@ function renderBoard() {
 function updateRobotPositions(newRobots) {
     boardState.robots = newRobots;
 
-    // Smooth transition
     newRobots.forEach((pos, idx) => {
         const [x, y] = pos;
         const robotElement = document.getElementById(`robot-${idx}`);
@@ -79,7 +88,47 @@ function updateRobotPositions(newRobots) {
     });
 }
 
+async function handleRobotDrop(e, x, y) {
+    clearArrows();
+    e.preventDefault();
+    const robotIdx = parseInt(e.dataTransfer.getData('text/plain'));
+    if (isNaN(robotIdx)) return;
+
+    if ((x === boardState.size / 2 || x === boardState.size / 2 - 1) && 
+        (y === boardState.size / 2 || y === boardState.size / 2 - 1)) {
+        return;
+    }
+
+    const isOccupied = boardState.robots.some(pos => pos[0] === x && pos[1] === y);
+    if (isOccupied) {
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/set_robot_pos', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                robot_idx: robotIdx,
+                x: x,
+                y: y
+            })
+        });
+
+        if (res.ok) {
+            const data = await res.json();
+            updateRobotPositions(data.robots);
+            document.getElementById('solve-result').innerText = '';
+        }
+    } catch (e) {
+        console.error("Set position failed:", e);
+    }
+}
+
 async function move(direction) {
+    clearArrows();
     if (isMoving) return;
 
     const selectedRobotInput = document.querySelector('input[name="robot"]:checked');
@@ -108,11 +157,29 @@ async function move(direction) {
         console.error("Action failed:", e);
     }
 
-    // Add small delay to prevent spam
     setTimeout(() => { isMoving = false; }, 200);
 }
 
-// Keyboard controls handler
+async function undoMove() {
+    clearArrows();
+    if (isMoving) return;
+    isMoving = true;
+    try {
+        const res = await fetch('/api/undo', {
+            method: 'POST'
+        });
+        if (res.ok) {
+            const data = await res.json();
+            updateRobotPositions(data.robots);
+            document.getElementById('solve-result').innerText = '';
+        }
+    } catch (e) {
+        console.error("Undo failed:", e);
+    }
+    setTimeout(() => { isMoving = false; }, 200);
+}
+
+// Keyboard
 document.addEventListener('keydown', (e) => {
     switch (e.key.toLowerCase()) {
         case 'w':
@@ -131,15 +198,19 @@ document.addEventListener('keydown', (e) => {
         case 'arrowleft':
             move(CONSTANTS.WEST);
             break;
+        case 'z':
+            undoMove();
+            break;
     }
 });
 
 function selectTarget(x, y) {
+    clearArrows();
     if ((x === boardState.size / 2 || x === boardState.size / 2 - 1) && (y === boardState.size / 2 || y === boardState.size / 2 - 1)) {
-        return; // Középső falra nem lehet célt tenni
+        return;
     }
 
-    // Előző cél törlése
+    // Delete previous target
     if (targetPos) {
         const oldCell = document.getElementById(`cell-${targetPos.x}-${targetPos.y}`);
         if (oldCell) oldCell.style.backgroundColor = '';
@@ -147,10 +218,10 @@ function selectTarget(x, y) {
 
     targetPos = { x, y };
     const newCell = document.getElementById(`cell-${x}-${y}`);
-    if (newCell) newCell.style.backgroundColor = '#fef3c7'; // Sárgás/narancs szín jelöli a célt
+    if (newCell) newCell.style.backgroundColor = '#fef3c7';
 
     document.getElementById('target-coords').innerText = `(${x}, ${y})`;
-    document.getElementById('solve-result').innerText = ''; // Eredmény törlése
+    document.getElementById('solve-result').innerText = '';
 }
 
 async function solve() {
@@ -181,6 +252,7 @@ async function solve() {
 
         if (res.ok) {
             const data = await res.json();
+            clearArrows();
 
             if (data.path === null) {
                 document.getElementById('solve-result').innerText = 'Nem található megoldás a megadott lépésszámon belül.';
@@ -197,6 +269,27 @@ async function solve() {
                 data.path.forEach((step, idx) => {
                     const colorHtml = `<strong style="color: ${hexColors[step.robot]}">${colors[step.robot]}</strong>`;
                     resultHtml += `<div>${idx + 1}. lépés: ${colorHtml} robot ➔ <strong>${dirs[step.dir]}</strong></div>`;
+
+                    if (step.start && step.end) {
+                        const [sx, sy] = step.start;
+                        const [ex, ey] = step.end;
+                        const startX = sx * 33 + 16;
+                        const startY = sy * 33 + 16;
+                        const endX = ex * 33 + 16;
+                        const endY = ey * 33 + 16;
+
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', startX);
+                        line.setAttribute('y1', startY);
+                        line.setAttribute('x2', endX);
+                        line.setAttribute('y2', endY);
+                        line.setAttribute('stroke', hexColors[step.robot]);
+                        line.setAttribute('stroke-width', '4');
+                        line.setAttribute('marker-end', `url(#arrow-${step.robot})`);
+                        line.setAttribute('opacity', '0.7');
+
+                        document.getElementById('arrow-layer').appendChild(line);
+                    }
                 });
 
                 resultHtml += '</div>';
@@ -209,5 +302,12 @@ async function solve() {
     }
 }
 
-// Initialize on page load
+function clearArrows() {
+    const layer = document.getElementById('arrow-layer');
+    if (!layer) return;
+    const defs = layer.querySelector('defs');
+    layer.innerHTML = '';
+    if (defs) layer.appendChild(defs);
+}
+
 initGame();

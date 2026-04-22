@@ -12,14 +12,13 @@ from src.engine.astar_subgoal import find_solution_astar_subgoal
 
 app = FastAPI()
 
-# Inicializálunk egy alap pályát és állapotot
 board = Board(size=16)
 
 
 
-# Példa robot pozíciók: 4 db robot (Pl. Piros, Kék, Zöld, Sárga)
 initial_robots = [(5, 5), (9, 0), (10, 2), (7, 13), (1,1)]
 game_state = GameState(initial_robots)
+state_history = []
 
 class MoveRequest(BaseModel):
     robot_idx: int
@@ -36,8 +35,25 @@ def get_state():
 @app.post("/api/move")
 def move(req: MoveRequest):
     new_pos = compute_move(board, game_state, req.robot_idx, req.direction)
-    # Frissítjük a pozíciót
+    state_history.append(list(game_state.robots))
     game_state.robots[req.robot_idx] = new_pos
+    return {"robots": game_state.robots}
+
+class SetPosRequest(BaseModel):
+    robot_idx: int
+    x: int
+    y: int
+
+@app.post("/api/set_robot_pos")
+def set_robot_pos(req: SetPosRequest):
+    state_history.append(list(game_state.robots))
+    game_state.robots[req.robot_idx] = (req.x, req.y)
+    return {"robots": game_state.robots}
+
+@app.post("/api/undo")
+def undo():
+    if state_history:
+        game_state.robots = state_history.pop()
     return {"robots": game_state.robots}
 
 class SolveRequest(BaseModel):
@@ -56,6 +72,23 @@ def solve_board(req: SolveRequest):
         path = find_solution_astar(board, game_state, req.robot_idx, target_pos, max_depth=20)
     else:  # astar_subgoal
         path = find_solution_astar_subgoal(board, game_state, req.robot_idx, target_pos, max_depth=20)
+        
+    if path is not None:
+        temp_state = GameState(list(game_state.robots))
+        enriched_path = []
+        for step in path:
+            r_idx = step["robot"]
+            direction = step["dir"]
+            start_pos = temp_state.robots[r_idx]
+            new_pos = compute_move(board, temp_state, r_idx, direction)
+            temp_state.robots[r_idx] = new_pos
+            enriched_path.append({
+                "robot": r_idx,
+                "dir": direction,
+                "start": start_pos,
+                "end": new_pos
+            })
+        path = enriched_path
         
     return {"path": path}
 
