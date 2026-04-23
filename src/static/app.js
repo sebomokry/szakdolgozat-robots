@@ -255,15 +255,16 @@ async function solve() {
             clearArrows();
 
             if (data.path === null) {
-                document.getElementById('solve-result').innerText = 'Nem található megoldás a megadott lépésszámon belül.';
+                document.getElementById('solve-result').innerHTML = `Nem található megoldás a megadott lépésszámon belül.<br><span style="font-size:13px;color:#666;">Kipróbált állapotok: ${data.states_evaluated} db</span>`;
             } else if (data.path.length === 0) {
-                document.getElementById('solve-result').innerText = 'A célba értünk! Nincs szükség további lépésre.';
+                document.getElementById('solve-result').innerHTML = `A célba értünk! Nincs szükség további lépésre.<br><span style="font-size:13px;color:#666;">Kipróbált állapotok: ${data.states_evaluated} db</span>`;
             } else {
                 const colors = { 0: "Zöld", 1: "Piros", 2: "Sárga", 3: "Kék", 4: "Fekete" };
                 const hexColors = { 0: "#0a8754", 1: "#f64740", 2: "#ffb703", 3: "#8ecae6", 4: "#000000" };
                 const dirs = { 0: "Észak", 1: "Dél", 2: "Kelet", 3: "Nyugat" };
 
                 let resultHtml = `<div style="color: #059669;">Megoldás megtalálva! Lépésszám: ${data.path.length}</div>`;
+                resultHtml += `<div style="font-size: 13px; color: #666; margin-top: 4px;">Kipróbált állapotok: ${data.states_evaluated} db</div>`;
                 resultHtml += '<div style="margin-top: 10px; padding: 10px; background: white; border: 1px dashed #ccc; border-radius: 4px; max-height: 180px; overflow-y: auto; text-align: left; font-size: 14px; font-weight: normal; color: #333;">';
 
                 data.path.forEach((step, idx) => {

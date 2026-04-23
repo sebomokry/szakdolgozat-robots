@@ -67,11 +67,11 @@ def solve_board(req: SolveRequest):
     target_pos = (req.target_x, req.target_y)
     
     if req.algorithm == "bfs":
-        path = find_solution(board, game_state, req.robot_idx, target_pos, max_depth=10)
+        path, states_evaluated = find_solution(board, game_state, req.robot_idx, target_pos, max_depth=10)
     elif req.algorithm == "astar":
-        path = find_solution_astar(board, game_state, req.robot_idx, target_pos, max_depth=20)
+        path, states_evaluated = find_solution_astar(board, game_state, req.robot_idx, target_pos, max_depth=20)
     else:  # astar_subgoal
-        path = find_solution_astar_subgoal(board, game_state, req.robot_idx, target_pos, max_depth=20)
+        path, states_evaluated = find_solution_astar_subgoal(board, game_state, req.robot_idx, target_pos, max_depth=20)
         
     if path is not None:
         temp_state = GameState(list(game_state.robots))
@@ -90,7 +90,7 @@ def solve_board(req: SolveRequest):
             })
         path = enriched_path
         
-    return {"path": path}
+    return {"path": path, "states_evaluated": states_evaluated}
 
 static_dir = os.path.join(os.path.dirname(__file__), "static")
 os.makedirs(static_dir, exist_ok=True)

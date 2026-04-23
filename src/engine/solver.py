@@ -21,7 +21,7 @@ def find_solution(board, current_state, robot_idx, target_pos, max_depth=14):
         
         if current_positions[robot_idx] == target_pos:
             print(f"{counter} db állapotot vizsgáltunk meg.")
-            return path
+            return path, counter
             
         if len(path) >= max_depth:
             continue
@@ -48,4 +48,4 @@ def find_solution(board, current_state, robot_idx, target_pos, max_depth=14):
                     counter += 1
                     queue.append((new_positions, new_path))
                     
-    return None
+    return None, counter

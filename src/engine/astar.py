@@ -52,7 +52,7 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
     
     if start_h == float('inf'):
         print("A cél elérhetetlen a heurisztika alapján (teljesen elzárt)!")
-        return None
+        return None, 0
         
     pq = []
     counter = 0  
@@ -69,7 +69,7 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
         
         if current_positions[robot_idx] == target_pos:
             print(f"{counter} db állapotot vizsgáltunk meg (sima A*).")
-            return path
+            return path, counter
             
         if g_score >= max_depth:
             continue
@@ -104,4 +104,4 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
                     counter += 1
                     heapq.heappush(pq, (new_f, main_robot_penalty, new_g, counter, new_positions, new_path))
                     
-    return None
+    return None, counter
