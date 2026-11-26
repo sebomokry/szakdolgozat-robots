@@ -4,8 +4,7 @@ from src.engine.state import GameState
 from src.engine.constants import NORTH, SOUTH, EAST, WEST
 
 def find_solution(board, current_state, robot_idx, target_pos, max_depth=14):
-    print(f"[{robot_idx}. robot] Útvonalkeresés a {target_pos} kordinátára... (max mélység: {max_depth})")
-    
+
     start_positions = tuple(current_state.robots)
     
     queue = deque([(start_positions, [])])
@@ -20,7 +19,6 @@ def find_solution(board, current_state, robot_idx, target_pos, max_depth=14):
         current_positions, path = queue.popleft()
         
         if current_positions[robot_idx] == target_pos:
-            print(f"{counter} db állapotot vizsgáltunk meg.")
             return path, counter
             
         if len(path) >= max_depth:
