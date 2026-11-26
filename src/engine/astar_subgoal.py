@@ -61,7 +61,6 @@ def calculate_heuristic_subgoal(board, target_pos):
     return H, Helpers
 
 def find_solution_astar_subgoal(board, current_state, robot_idx, target_pos, max_depth=20):
-    print(f"[{robot_idx}. robot] A* (Subgoal) Útvonalkeresés a {target_pos} kordinátára... (max mélység: {max_depth})")
     
     H, Helpers = calculate_heuristic_subgoal(board, target_pos)
     
@@ -71,7 +70,6 @@ def find_solution_astar_subgoal(board, current_state, robot_idx, target_pos, max
     start_h = H[start_ty][start_tx]
     
     if start_h == float('inf'):
-        print("A cél elérhetetlen a heurisztika alapján (teljesen elzárt)!")
         return None, 0
         
     pq = []
@@ -88,7 +86,6 @@ def find_solution_astar_subgoal(board, current_state, robot_idx, target_pos, max
         f_score, main_robot_penalty, g_score, _, current_positions, path = heapq.heappop(pq)
         
         if current_positions[robot_idx] == target_pos:
-            print(f"{counter} db állapotot vizsgáltunk meg (A* Subgoal).")
             return path, counter
             
         if g_score >= max_depth:

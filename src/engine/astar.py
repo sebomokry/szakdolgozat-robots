@@ -41,7 +41,6 @@ def calculate_heuristic(board, target_pos):
     return H
 
 def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=20):
-    print(f"[{robot_idx}. robot] A* Útvonalkeresés a {target_pos} kordinátára... (max mélység: {max_depth})")
     
     H = calculate_heuristic(board, target_pos)
     
@@ -51,7 +50,6 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
     start_h = H[start_ty][start_tx]
     
     if start_h == float('inf'):
-        print("A cél elérhetetlen a heurisztika alapján (teljesen elzárt)!")
         return None, 0
         
     pq = []
@@ -68,7 +66,6 @@ def find_solution_astar(board, current_state, robot_idx, target_pos, max_depth=2
         f_score, main_robot_penalty, g_score, _, current_positions, path = heapq.heappop(pq)
         
         if current_positions[robot_idx] == target_pos:
-            print(f"{counter} db állapotot vizsgáltunk meg (sima A*).")
             return path, counter
             
         if g_score >= max_depth:
